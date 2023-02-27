@@ -35,7 +35,7 @@ void TestpluginAudioProcessorEditor::paint(juce::Graphics &g) {
 
   g.setColour(juce::Colours::black);
   g.setFont(30.0f);
-  g.drawFittedText("Hello World!", getLocalBounds(),
+  g.drawFittedText("Hello Camille!", getLocalBounds(),
                    juce::Justification::centred, 1);
 }
 

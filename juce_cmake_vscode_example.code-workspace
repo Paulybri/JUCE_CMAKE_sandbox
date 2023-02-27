@@ -22,8 +22,7 @@
             "-clang-tidy",
             "-background-index",
             "-compile-commands-dir=${workspaceFolder}/build",
-            "-header-insertion=never",
-            "--query-driver=\"/usr/bin/clang++\""
+            "-header-insertion=never"
         ],
         "cmake.ctestArgs": [
             "--verbose"
@@ -33,12 +32,12 @@
             //  "-DAAX_SDK_PATH="
         ],
         "cmake.preferredGenerators": [
-            "Ninja",
+            // "Ninja",
             "Unix Makefiles"
         ],
     },
     "launch": {
-        "configurations": [
+        "configurations": [          
             {
                 "type": "lldb",
                 "request": "launch",
