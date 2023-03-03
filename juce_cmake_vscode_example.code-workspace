@@ -32,7 +32,7 @@
             //  "-DAAX_SDK_PATH="
         ],
         "cmake.preferredGenerators": [
-            // "Ninja",
+            "Ninja",
             "Unix Makefiles"
         ],
     },

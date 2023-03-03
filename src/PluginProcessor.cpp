@@ -10,7 +10,6 @@
 
 #include "PluginEditor.h"
 
-
 //==============================================================================
 TestpluginAudioProcessor::TestpluginAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -82,6 +81,12 @@ void TestpluginAudioProcessor::prepareToPlay(double sampleRate,
                                              int samplesPerBlock) {
   // Use this method as the place to do any pre-playback
   // initialisation that you need..
+  juce::dsp::ProcessSpec spec;
+  spec.maximumBlockSize = samplesPerBlock;
+  spec.numChannels = 1;
+  spec.sampleRate = sampleRate;
+  leftChain.prepare(spec);
+  rightChain.prepare(spec);
 }
 
 void TestpluginAudioProcessor::releaseResources() {
@@ -128,17 +133,15 @@ void TestpluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer,
   for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
     buffer.clear(i, 0, buffer.getNumSamples());
 
-  // This is the place where you'd normally do the guts of your plugin's
-  // audio processing...
-  // Make sure to reset the state if your inner loop is processing
-  // the samples and the outer loop is handling the channels.
-  // Alternatively, you can process the samples with the channels
-  // interleaved by keeping the same state.
-  for (int channel = 0; channel < totalNumInputChannels; ++channel) {
-    auto *channelData = buffer.getWritePointer(channel);
+  juce::dsp::AudioBlock<float> block(buffer);
+  auto leftBlock = block.getSingleChannelBlock(0);
+  auto rightBlock = block.getSingleChannelBlock(1);
 
-    // ..do something to the data...
-  }
+  juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
+  juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
+
+  leftChain.process(leftContext);
+  rightChain.process(rightContext);
 }
 
 //==============================================================================
@@ -147,7 +150,8 @@ bool TestpluginAudioProcessor::hasEditor() const {
 }
 
 juce::AudioProcessorEditor *TestpluginAudioProcessor::createEditor() {
-  return new TestpluginAudioProcessorEditor(*this);
+  // return new TestpluginAudioProcessorEditor(*this);
+  return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
@@ -163,6 +167,21 @@ void TestpluginAudioProcessor::setStateInformation(const void *data,
   // You should use this method to restore your parameters from this memory
   // block, whose contents will have been created by the getStateInformation()
   // call.
+}
+
+juce::AudioProcessorValueTreeState::ParameterLayout
+TestpluginAudioProcessor::createParameterLayout() {
+  juce::AudioProcessorValueTreeState::ParameterLayout layout;
+
+  layout.add(std::make_unique<juce::AudioParameterFloat>(
+      "LowCut Freq", "LowCut Freq",
+      juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20.f));
+
+  layout.add(std::make_unique<juce::AudioParameterFloat>(
+      "HighCut Freq", "HighCut Freq",
+      juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 20000.f));
+
+  return layout;
 }
 
 //==============================================================================
