@@ -2,3 +2,6 @@
 	path = lib/JUCE
 	url = https://github.com/juce-framework/JUCE.git
 	branch = juce6
+[submodule "lib/react-juce"]
+	path = lib/react-juce
+	url = https://github.com/JoshMarler/react-juce.git
